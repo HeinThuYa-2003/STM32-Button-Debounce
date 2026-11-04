@@ -33,6 +33,20 @@ Firmware for the **STM32 Nucleo-F401RE** that counts button presses and logs the
 - Presses are counted only on a stable HIGH → LOW transition
 - **Result:** 10 touches give exactly 10 counts, and releases are not counted 
 
+### 5. Fix #3: state-based debounce in a timer interrupt (final version) ⭐
+- **TIM2** generates an interrupt every **5 ms** (PSC = 83, ARR = 4999 at an 84 MHz timer clock)
+- The ISR samples PA0 and counts how many samples in a row are identical
+- A new state is accepted after **6 identical samples (6 × 5 ms = 30 ms)**
+- The timer acts as the clock, so `HAL_GetTick()` is no longer needed
+- The ISR only sets a `volatile` flag; UART printing stays in the main loop
+- **Result:** reliable counting no matter how busy `while(1)` is. This is the pattern commonly used in real products.
+
+| Method | Where | Release bounce | Affected by a busy main loop |
+|---|---|---|---|
+| Edge-based | EXTI callback | ❌ | No |
+| State-based (polling) | `while(1)` | ✅ | Yes |
+| **State-based (timer ISR)** | **5 ms TIM2 ISR** | ✅ | **No** |
+
 ## Key concepts
 - EXTI / NVIC / vector table and `__weak` callbacks
 - Flag pattern (keep ISRs short, no UART inside ISRs)
@@ -41,6 +55,9 @@ Firmware for the **STM32 Nucleo-F401RE** that counts button presses and logs the
 - `strlen()` vs `sizeof()` for UART transmit length
 - Edge-based vs state-based debounce
 - Polling vs interrupts trade-offs
+- - Timer configuration: prescaler (PSC), auto-reload (ARR) and the period formula `T = (PSC+1)(ARR+1) / f_timer`
+- 16-bit vs 32-bit timer limits
+- Saturating counters (defensive programming against `uint8_t` overflow)
 
 ## How to build
 1. Open the project in STM32CubeIDE
@@ -49,5 +66,6 @@ Firmware for the **STM32 Nucleo-F401RE** that counts button presses and logs the
 4. Open a serial terminal at **115200 baud**
 
 ## Next steps
-- Move the state-based debounce into a periodic **timer interrupt** (the industry pattern)
-- Add low-power sleep with `__WFI()`
+- Add low-power sleep with `__WFI()` between timer interrupts
+- Support multiple buttons using arrays
+- Add PWM output (e.g. LED brightness controlled by button presses)
