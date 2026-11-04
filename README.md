@@ -55,7 +55,7 @@ Firmware for the **STM32 Nucleo-F401RE** that counts button presses and logs the
 - `strlen()` vs `sizeof()` for UART transmit length
 - Edge-based vs state-based debounce
 - Polling vs interrupts trade-offs
-- - Timer configuration: prescaler (PSC), auto-reload (ARR) and the period formula `T = (PSC+1)(ARR+1) / f_timer`
+- Timer configuration: prescaler (PSC), auto-reload (ARR) and the period formula `T = (PSC+1)(ARR+1) / f_timer`
 - 16-bit vs 32-bit timer limits
 - Saturating counters (defensive programming against `uint8_t` overflow)
 
