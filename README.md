@@ -33,7 +33,7 @@ Firmware for the **STM32 Nucleo-F401RE** that counts button presses and logs the
 - Presses are counted only on a stable HIGH → LOW transition
 - **Result:** 10 touches give exactly 10 counts, and releases are not counted 
 
-### 5. Fix #3: state-based debounce in a timer interrupt (final version) ⭐
+### 5. Fix #3: state-based debounce in a timer interrupt (final version)
 - **TIM2** generates an interrupt every **5 ms** (PSC = 83, ARR = 4999 at an 84 MHz timer clock)
 - The ISR samples PA0 and counts how many samples in a row are identical
 - A new state is accepted after **6 identical samples (6 × 5 ms = 30 ms)**
